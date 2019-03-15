@@ -1,4 +1,4 @@
-module github.com/MaxTech/gateway
+module github.com/maxtech/gateway
 
 go 1.12
 
