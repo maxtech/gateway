@@ -1,8 +1,8 @@
 package websocket
 
 import (
-    "github.com/MaxTech/log"
     "github.com/gin-gonic/gin"
+    "github.com/maxtech/log"
     "net/http"
 )
 

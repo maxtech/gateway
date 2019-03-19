@@ -1,7 +1,7 @@
 package grpc_gateway
 
 import (
-    "github.com/MaxTech/log"
+    "github.com/maxtech/log"
     "google.golang.org/grpc"
     "net"
     "sync"
