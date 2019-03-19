@@ -1,5 +1,5 @@
 package grpc_gateway
 
-import "github.com/MaxTech/log"
+import "github.com/maxtech/log"
 
 var logger log.AppLogger
