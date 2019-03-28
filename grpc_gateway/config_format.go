@@ -1,6 +1,6 @@
 package grpc_gateway
 
-type GrpcConfigFormat struct {
+type GRPCConfigFormat struct {
     Address string `yaml:"address"`
     Https   bool   `yaml:"https"`
 }
