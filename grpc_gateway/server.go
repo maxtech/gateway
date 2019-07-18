@@ -8,8 +8,6 @@ import (
     "time"
 )
 
-var server *grpcServer
-
 type grpcServer struct {
     mu     sync.Mutex
     lis    net.Listener
@@ -17,14 +15,11 @@ type grpcServer struct {
     status chan int
 }
 
-func init() {
-    server = new(grpcServer)
-    server.status = make(chan int, 1)
-}
-
 func Init(initLogger log.AppLogger, address string) *grpcServer {
     var err error
     logger = initLogger
+    server := new(grpcServer)
+    server.status = make(chan int, 1)
     server.lis, err = net.Listen("tcp", address)
     if err != nil {
         logger.Error("failed to listen:", err.Error())
