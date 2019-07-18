@@ -8,17 +8,17 @@ import (
     "time"
 )
 
-type grpcServer struct {
+type GrpcServer struct {
     mu     sync.Mutex
     lis    net.Listener
     server *grpc.Server
     status chan int
 }
 
-func Init(initLogger log.AppLogger, address string) *grpcServer {
+func Init(initLogger log.AppLogger, address string) *GrpcServer {
     var err error
     logger = initLogger
-    server := new(grpcServer)
+    server := new(GrpcServer)
     server.status = make(chan int, 1)
     server.lis, err = net.Listen("tcp", address)
     if err != nil {
@@ -29,11 +29,11 @@ func Init(initLogger log.AppLogger, address string) *grpcServer {
     return server
 }
 
-func (gs *grpcServer) GetGrpcServer() *grpc.Server {
+func (gs *GrpcServer) GetGrpcServer() *grpc.Server {
     return gs.server
 }
 
-func (gs *grpcServer) Start() {
+func (gs *GrpcServer) Start() {
     for {
         if len(gs.status) < 1 {
             gs.mu.Lock()
@@ -45,7 +45,7 @@ func (gs *grpcServer) Start() {
     }
 }
 
-func (gs *grpcServer) run(s *grpc.Server, lis net.Listener) {
+func (gs *GrpcServer) run(s *grpc.Server, lis net.Listener) {
     defer func() {
         if err := recover(); err != nil {
             logger.Error("recover error:", err)
