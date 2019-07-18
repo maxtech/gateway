@@ -9,6 +9,7 @@ import (
 )
 
 type GrpcServer struct {
+    logger log.AppLogger
     mu     sync.Mutex
     lis    net.Listener
     server *grpc.Server
@@ -17,12 +18,12 @@ type GrpcServer struct {
 
 func Init(initLogger log.AppLogger, address string) *GrpcServer {
     var err error
-    logger = initLogger
     server := new(GrpcServer)
     server.status = make(chan int, 1)
+    server.logger = initLogger
     server.lis, err = net.Listen("tcp", address)
     if err != nil {
-        logger.Error("failed to listen:", err.Error())
+        initLogger.Error("failed to listen:", err.Error())
     }
     server.server = grpc.NewServer()
 
@@ -48,7 +49,7 @@ func (gs *GrpcServer) Start() {
 func (gs *GrpcServer) run(s *grpc.Server, lis net.Listener) {
     defer func() {
         if err := recover(); err != nil {
-            logger.Error("recover error:", err)
+            gs.logger.Error("recover error:", err)
             gs.mu.Lock()
             <-gs.status
             gs.mu.Unlock()
@@ -56,6 +57,6 @@ func (gs *GrpcServer) run(s *grpc.Server, lis net.Listener) {
     }()
 
     if err := s.Serve(lis); err != nil {
-        logger.Error("failed to serve:", err.Error())
+        gs.logger.Error("failed to serve:", err.Error())
     }
 }
