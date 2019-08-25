@@ -53,10 +53,12 @@ func (s *serverUtil) StartMuxByConfig(route *mux.Router, https bool, certFile, k
         server.TLSConfig = &tls.Config{GetCertificate: m.GetCertificate}
 
         go startHttpsServer(server, certFile, keyFile)
+        log.Println(fmt.Sprintf("https server started: %v", httpConfigFormat.HttpsAddress))
     } else {
         server.Addr = httpConfigFormat.HttpAddress
         // Run our server in a goroutine so that it doesn't block.
         go startHttpServer(server)
+        log.Println(fmt.Sprintf("http server started: %v", httpConfigFormat.HttpAddress))
     }
 
     c := make(chan os.Signal, 1)
