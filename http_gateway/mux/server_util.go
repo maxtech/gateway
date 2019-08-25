@@ -19,7 +19,7 @@ type serverUtil struct {
 
 var ServerUtil *serverUtil
 
-func (s *serverUtil) InitMux(mode string) *mux.Router {
+func (s *serverUtil) InitMux() *mux.Router {
     return mux.NewRouter()
 }
 
