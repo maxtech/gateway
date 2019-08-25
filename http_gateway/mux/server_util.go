@@ -23,7 +23,7 @@ func (s *serverUtil) InitMux(mode string) *mux.Router {
     return mux.NewRouter()
 }
 
-func (s *serverUtil) StartMuxByConfig(route *mux.Router, certFile, keyFile string, httpConfigFormat http_gateway.HttpConfigFormat) {
+func (s *serverUtil) StartMuxByConfig(route *mux.Router, https bool, certFile, keyFile string, httpConfigFormat http_gateway.HttpConfigFormat) {
     server := &http.Server{
         // Good practice to set timeouts to avoid Slowloris attacks.
         WriteTimeout: time.Second * 15,
@@ -32,7 +32,7 @@ func (s *serverUtil) StartMuxByConfig(route *mux.Router, certFile, keyFile strin
         Handler: route, // Pass our instance of gorilla/mux in.
     }
 
-    if httpConfigFormat.Https {
+    if https {
 
         hostPolicy := func(ctx context.Context, host string) error {
             // Note: change to your real domain
