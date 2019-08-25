@@ -1,7 +1,8 @@
-package http_gateway
+package mux
 
 import (
     "github.com/gin-gonic/gin"
+    "github.com/maxtech/gateway/http_gateway"
     "log"
     "net/http"
 )
@@ -11,14 +12,12 @@ type serverUtil struct {
 
 var ServerUtil *serverUtil
 
-func (s *serverUtil) Init(mode string) *gin.Engine {
+func (s *serverUtil) InitGin(mode string) *gin.Engine {
     gin.SetMode(mode)
     return gin.Default()
 }
 
-func (s *serverUtil) Start(mode string, https bool, address, certFile, keyFile string) {
-    gin.SetMode(mode)
-    engine := gin.Default()
+func (s *serverUtil) StartGin(engine *gin.Engine, https bool, address, certFile, keyFile string) {
     var err error
     if https {
         err = http.ListenAndServeTLS(address, certFile, keyFile, engine)
@@ -31,10 +30,8 @@ func (s *serverUtil) Start(mode string, https bool, address, certFile, keyFile s
     return
 }
 
-func (s *serverUtil) StartByConfig(mode string, httpConfigFormat HttpConfigFormat) {
+func (s *serverUtil) StartGinByConfig(engine *gin.Engine, httpConfigFormat http_gateway.HttpConfigFormat) {
     var err error
-    gin.SetMode(mode)
-    engine := gin.Default()
     if httpConfigFormat.Https {
         err = http.ListenAndServeTLS(httpConfigFormat.Address, httpConfigFormat.CertFile, httpConfigFormat.KeyFile, engine)
     } else {
