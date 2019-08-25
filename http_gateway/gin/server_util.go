@@ -1,4 +1,4 @@
-package mux
+package gin_http_gateway
 
 import (
     "github.com/gin-gonic/gin"

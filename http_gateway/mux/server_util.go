@@ -1,4 +1,4 @@
-package mux
+package mux_http_gateway
 
 import (
     "context"
