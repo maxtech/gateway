@@ -11,21 +11,21 @@ type ws struct {
 
 var WS *ws
 
-func (*ws) Handler(ctx *gin.Context) {
+func (*ws) Handler(_ctx *gin.Context) {
     var params wsParams
-    err := ctx.ShouldBindQuery(&params)
+    err := _ctx.ShouldBindQuery(&params)
 
     if err != nil {
-        ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
+        _ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
             "code": http.StatusBadRequest,
             "msg":  "参数解析错误",
         })
         return
     }
 
-    userIdInterface, _ := ctx.Get("user_id")
+    userIdInterface, _ := _ctx.Get("user_id")
     if userIdInterface == nil {
-        ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
+        _ctx.AbortWithStatusJSON(http.StatusBadRequest, map[string]interface{}{
             "code": http.StatusBadRequest,
             "msg":  "登录信息错误",
         })
@@ -34,7 +34,7 @@ func (*ws) Handler(ctx *gin.Context) {
 
     params.UserId = userIdInterface.(uint64)
 
-    serveWs(Hub, ctx.Writer, ctx.Request, params)
+    serveWs(Hub, _ctx.Writer, _ctx.Request, params)
 }
 
 type Message struct {

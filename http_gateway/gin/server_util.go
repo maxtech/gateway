@@ -12,17 +12,17 @@ type serverUtil struct {
 
 var ServerUtil *serverUtil
 
-func (s *serverUtil) InitGin(mode string) *gin.Engine {
-    gin.SetMode(mode)
+func (su *serverUtil) InitGin(_mode string) *gin.Engine {
+    gin.SetMode(_mode)
     return gin.Default()
 }
 
-func (s *serverUtil) StartGin(engine *gin.Engine, https bool, address, certFile, keyFile string) {
+func (su *serverUtil) StartGin(_engine *gin.Engine, _https bool, _address, _certFile, _keyFile string) {
     var err error
-    if https {
-        err = http.ListenAndServeTLS(address, certFile, keyFile, engine)
+    if _https {
+        err = http.ListenAndServeTLS(_address, _certFile, _keyFile, _engine)
     } else {
-        err = http.ListenAndServe(address, engine)
+        err = http.ListenAndServe(_address, _engine)
     }
     if err != nil {
         log.Fatal(err)
@@ -30,12 +30,12 @@ func (s *serverUtil) StartGin(engine *gin.Engine, https bool, address, certFile,
     return
 }
 
-func (s *serverUtil) StartGinByConfig(engine *gin.Engine, httpConfigFormat http_gateway.HttpConfigFormat) {
+func (su *serverUtil) StartGinByConfig(_engine *gin.Engine, _httpConfigFormat http_gateway.HttpConfigFormat) {
     var err error
-    if httpConfigFormat.Https {
-        err = http.ListenAndServeTLS(httpConfigFormat.Address, httpConfigFormat.CertFile, httpConfigFormat.KeyFile, engine)
+    if _httpConfigFormat.Https {
+        err = http.ListenAndServeTLS(_httpConfigFormat.HttpAddress, _httpConfigFormat.CertFile, _httpConfigFormat.KeyFile, _engine)
     } else {
-        err = http.ListenAndServe(httpConfigFormat.Address, engine)
+        err = http.ListenAndServe(_httpConfigFormat.HttpAddress, _engine)
     }
     if err != nil {
         log.Fatal(err)

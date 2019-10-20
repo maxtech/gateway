@@ -23,7 +23,7 @@ const (
 )
 
 var (
-    upgrader = websocket.Upgrader{
+    upgrade = websocket.Upgrader{
         ReadBufferSize:  1024,
         WriteBufferSize: 1024,
         CheckOrigin: func(r *http.Request) bool {
@@ -39,9 +39,9 @@ type wsParams struct {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(hub *hub, w http.ResponseWriter, r *http.Request, params wsParams) {
+func serveWs(_hub *hub, _w http.ResponseWriter, _r *http.Request, params wsParams) {
 
-    conn, err := upgrader.Upgrade(w, r, nil)
+    conn, err := upgrade.Upgrade(_w, _r, nil)
     if err != nil {
         logger.Error(err)
         return
@@ -53,7 +53,7 @@ func serveWs(hub *hub, w http.ResponseWriter, r *http.Request, params wsParams) 
         cTopics[tempTopic] = true
     }
 
-    client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: strconv.FormatUint(params.UserId, 10), topics: cTopics}
+    client := &Client{hub: _hub, conn: conn, send: make(chan []byte, 256), id: strconv.FormatUint(params.UserId, 10), topics: cTopics}
     client.hub.register <- client
 
     // Allow collection of memory referenced by the caller by doing all work in
@@ -66,8 +66,8 @@ func newHub() *hub {
     return &hub{
         topics:          make(map[string]map[*Client]bool),
         Broadcast:       make(chan []byte),
-        Topicbroadcast:  make(chan *Message),
-        Directbroadcast: make(chan *Message),
+        TopicBroadcast:  make(chan *Message),
+        DirectBroadcast: make(chan *Message),
         register:        make(chan *Client),
         unregister:      make(chan *Client),
         clients:         make(map[*Client]bool),

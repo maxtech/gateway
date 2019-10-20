@@ -7,7 +7,6 @@ import (
     "github.com/gorilla/mux"
     "github.com/maxtech/gateway/http_gateway"
     "golang.org/x/crypto/acme/autocert"
-    "log"
     "net/http"
     "os"
     "os/signal"
@@ -19,25 +18,25 @@ type serverUtil struct {
 
 var ServerUtil *serverUtil
 
-func (s *serverUtil) InitMux() *mux.Router {
+func (su *serverUtil) InitMux() *mux.Router {
     return mux.NewRouter()
 }
 
-func (s *serverUtil) StartMuxByConfig(route *mux.Router, https bool, certFile, keyFile string, httpConfigFormat http_gateway.HttpConfigFormat) {
+func (su *serverUtil) StartMuxByConfig(_route *mux.Router, _https bool, _certFile, _keyFile string, _httpConfigFormat http_gateway.HttpConfigFormat) {
     server := &http.Server{
         // Good practice to set timeouts to avoid Slowloris attacks.
         WriteTimeout: time.Second * 15,
         ReadTimeout:  time.Second * 15,
         IdleTimeout:  time.Second * 60,
-        Handler: route, // Pass our instance of gorilla/mux in.
+        Handler: _route, // Pass our instance of gorilla/mux in.
     }
 
-    if https {
+    if _https {
 
-        hostPolicy := func(ctx context.Context, host string) error {
+        hostPolicy := func(_ctx context.Context, _host string) error {
             // Note: change to your real domain
             allowedHost := "www.mydomain.com"
-            if host == allowedHost {
+            if _host == allowedHost {
                 return nil
             }
             return fmt.Errorf("acme/autocert: only %s host is allowed", allowedHost)
@@ -49,16 +48,18 @@ func (s *serverUtil) StartMuxByConfig(route *mux.Router, https bool, certFile, k
             HostPolicy: hostPolicy,
             Cache: autocert.DirCache(dataDir),
         }
-        server.Addr = httpConfigFormat.HttpsAddress
+        server.Addr = _httpConfigFormat.HttpsAddress
         server.TLSConfig = &tls.Config{GetCertificate: m.GetCertificate}
 
-        go startHttpsServer(server, certFile, keyFile)
-        log.Println(fmt.Sprintf("https server started: %v", httpConfigFormat.HttpsAddress))
+        go startHttpsServer(server, _certFile, _keyFile)
+
+        _, _ = fmt.Fprintln(os.Stdout, fmt.Sprintf("https server started: %v", _httpConfigFormat.HttpsAddress))
     } else {
-        server.Addr = httpConfigFormat.HttpAddress
+        server.Addr = _httpConfigFormat.HttpAddress
         // Run our server in a goroutine so that it doesn't block.
         go startHttpServer(server)
-        log.Println(fmt.Sprintf("http server started: %v", httpConfigFormat.HttpAddress))
+
+        _, _ = fmt.Fprintln(os.Stdout, fmt.Sprintf("http server started: %v", _httpConfigFormat.HttpAddress))
     }
 
     c := make(chan os.Signal, 1)
@@ -78,26 +79,27 @@ func (s *serverUtil) StartMuxByConfig(route *mux.Router, https bool, certFile, k
     // Optionally, you could run srv.Shutdown in a goroutine and block on
     // <-ctx.Done() if your application should wait for other services
     // to finalize based on context cancellation.
-    log.Println("shutting down")
+
+    _, _ = fmt.Fprintln(os.Stdout, "shutting down")
     os.Exit(0)
 }
 
-func startHttpsServer(server *http.Server, certFile, keyFile string) {
+func startHttpsServer(_server *http.Server, certFile, keyFile string) {
     if err := recover(); err != nil {
-        log.Println(err)
-        startHttpsServer(server, certFile, keyFile)
+        _, _ = fmt.Fprintln(os.Stderr, err)
+        startHttpsServer(_server, certFile, keyFile)
     }
-    if err := server.ListenAndServe(); err != nil {
-        log.Println(err)
+    if err := _server.ListenAndServe(); err != nil {
+        _, _ = fmt.Fprintln(os.Stderr, err.Error())
     }
 }
 
-func startHttpServer(server *http.Server) {
+func startHttpServer(_server *http.Server) {
     if err := recover(); err != nil {
-        log.Println(err)
-        startHttpServer(server)
+        _, _ = fmt.Fprintln(os.Stderr, err)
+        startHttpServer(_server)
     }
-    if err := server.ListenAndServe(); err != nil {
-        log.Println(err)
+    if err := _server.ListenAndServe(); err != nil {
+        _, _ = fmt.Fprintln(os.Stderr, err.Error())
     }
 }

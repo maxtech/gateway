@@ -6,13 +6,13 @@ import (
     "strings"
 )
 
-func GetHostAndPortFromContext(context *gin.Context) (host, port string, err error) {
+func GetHostAndPortFromContext(_context *gin.Context) (host, port string, err error) {
     ipStrings := make([]string, 0)
-    ips := context.Request.Header.Get("X-Forwarded-For")
+    ips := _context.Request.Header.Get("X-Forwarded-For")
     if ips != "" {
         ipStrings = strings.Split(ips, ",")
     } else {
-        ipStrings = append(ipStrings, context.Request.RemoteAddr)
+        ipStrings = append(ipStrings, _context.Request.RemoteAddr)
     }
 
     if len(ipStrings) > 0 && ipStrings[0] != "" {

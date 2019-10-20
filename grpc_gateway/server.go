@@ -8,7 +8,7 @@ import (
     "time"
 )
 
-type GrpcServer struct {
+type GRPCServer struct {
     Logger log.AppLogger
     mu     sync.Mutex
     lis    net.Listener
@@ -16,25 +16,25 @@ type GrpcServer struct {
     status chan int
 }
 
-func Init(initLogger log.AppLogger, address string) *GrpcServer {
+func Init(_initLogger log.AppLogger, _address string) *GRPCServer {
     var err error
-    server := new(GrpcServer)
+    server := new(GRPCServer)
     server.status = make(chan int, 1)
-    server.Logger = initLogger
-    server.lis, err = net.Listen("tcp", address)
+    server.Logger = _initLogger
+    server.lis, err = net.Listen("tcp", _address)
     if err != nil {
-        initLogger.Error("failed to listen:", err.Error())
+        _initLogger.Error("failed to listen:", err.Error())
     }
     server.server = grpc.NewServer()
 
     return server
 }
 
-func (gs *GrpcServer) GetGrpcServer() *grpc.Server {
+func (gs *GRPCServer) GetGRPCServer() *grpc.Server {
     return gs.server
 }
 
-func (gs *GrpcServer) Start() {
+func (gs *GRPCServer) Start() {
     for {
         if len(gs.status) < 1 {
             gs.mu.Lock()
@@ -46,7 +46,7 @@ func (gs *GrpcServer) Start() {
     }
 }
 
-func (gs *GrpcServer) run(s *grpc.Server, lis net.Listener) {
+func (gs *GRPCServer) run(_server *grpc.Server, _lis net.Listener) {
     defer func() {
         if err := recover(); err != nil {
             gs.Logger.Error("recover error:", err)
@@ -56,7 +56,7 @@ func (gs *GrpcServer) run(s *grpc.Server, lis net.Listener) {
         }
     }()
 
-    if err := s.Serve(lis); err != nil {
+    if err := _server.Serve(_lis); err != nil {
         gs.Logger.Error("failed to serve:", err.Error())
     }
 }

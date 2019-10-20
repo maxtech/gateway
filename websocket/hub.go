@@ -10,10 +10,10 @@ type hub struct {
     Broadcast chan []byte
 
     // Inbound messages from the clients.
-    Topicbroadcast chan *Message
+    TopicBroadcast chan *Message
 
     // Inbound messages from the clients.
-    Directbroadcast chan *Message
+    DirectBroadcast chan *Message
 
     // Register requests from the clients.
     register chan *Client
@@ -65,7 +65,7 @@ func (h *hub) run() {
                 }
             }
 
-        case typeMsg := <-h.Topicbroadcast:
+        case typeMsg := <-h.TopicBroadcast:
             if typeMsg.Topic != "" && h.isLegal(typeMsg) {
                 for client := range h.topics[typeMsg.Topic] {
                     if client.id == typeMsg.Sender {
@@ -79,7 +79,7 @@ func (h *hub) run() {
                     }
                 }
             }
-        case typeMsg := <-h.Directbroadcast:
+        case typeMsg := <-h.DirectBroadcast:
             if typeMsg.Receiver != "" && h.isLegal(typeMsg) {
                 for client := range h.clients {
                     if client.id != typeMsg.Receiver {
@@ -97,27 +97,26 @@ func (h *hub) run() {
     }
 }
 
-func (h *hub) isLegal(typeMsg *Message) bool {
-
-    if typeMsg.IsHost {
+func (h *hub) isLegal(_typeMsg *Message) bool {
+    if _typeMsg.IsHost {
         return true
     }
 
     var tempCli *Client
     for client := range h.clients {
-        if client.id == typeMsg.Sender {
+        if client.id == _typeMsg.Sender {
             tempCli = client
             break
         }
     }
 
-    if typeMsg.IsDirect {
-        if typeMsg.Receiver != "" {
+    if _typeMsg.IsDirect {
+        if _typeMsg.Receiver != "" {
             return true
         }
     } else {
         if tempCli != nil {
-            return tempCli.topics[typeMsg.Topic]
+            return tempCli.topics[_typeMsg.Topic]
         }
     }
 
