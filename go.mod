@@ -7,6 +7,6 @@ require (
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/maxtech/log v0.0.0-20190428021008-adc72ca3a12e // indirect
-	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586 // indirect
+	golang.org/x/crypto v0.0.0-20191106202628-ed6320f186d4 // indirect
 	google.golang.org/grpc v1.19.0 // indirect
 )

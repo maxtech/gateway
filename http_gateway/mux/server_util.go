@@ -16,13 +16,16 @@ import (
 type serverUtil struct {
 }
 
-var ServerUtil *serverUtil
+var (
+    ServerUtil *serverUtil
+    AllowHosts []string
+)
 
 func (su *serverUtil) InitMux() *mux.Router {
     return mux.NewRouter()
 }
 
-func (su *serverUtil) StartMuxByConfig(_route *mux.Router, _https bool, _certFile, _keyFile string, _httpConfigFormat http_gateway.HttpConfigFormat) {
+func (su *serverUtil) StartMuxByConfig(_route *mux.Router, _httpConfigFormat http_gateway.HttpConfigFormat, _hostPolicy func(ctx context.Context, host string) error) {
     server := &http.Server{
         // Good practice to set timeouts to avoid Slowloris attacks.
         WriteTimeout: time.Second * 15,
@@ -31,27 +34,19 @@ func (su *serverUtil) StartMuxByConfig(_route *mux.Router, _https bool, _certFil
         Handler: _route, // Pass our instance of gorilla/mux in.
     }
 
-    if _https {
+    if _httpConfigFormat.Https {
 
-        hostPolicy := func(_ctx context.Context, _host string) error {
-            // Note: change to your real domain
-            allowedHost := "www.mydomain.com"
-            if _host == allowedHost {
-                return nil
-            }
-            return fmt.Errorf("acme/autocert: only %s host is allowed", allowedHost)
-        }
         dataDir := "."
 
         m := autocert.Manager{
             Prompt: autocert.AcceptTOS,
-            HostPolicy: hostPolicy,
+            HostPolicy: _hostPolicy,
             Cache: autocert.DirCache(dataDir),
         }
         server.Addr = _httpConfigFormat.HttpsAddress
         server.TLSConfig = &tls.Config{GetCertificate: m.GetCertificate}
 
-        go startHttpsServer(server, _certFile, _keyFile)
+        go startHttpsServer(server, _httpConfigFormat.CertFile, _httpConfigFormat.KeyFile)
 
         _, _ = fmt.Fprintln(os.Stdout, fmt.Sprintf("https server started: %v", _httpConfigFormat.HttpsAddress))
     } else {
@@ -102,4 +97,15 @@ func startHttpServer(_server *http.Server) {
     if err := _server.ListenAndServe(); err != nil {
         _, _ = fmt.Fprintln(os.Stderr, err.Error())
     }
+}
+
+func (su *serverUtil) HostPolicy(_ctx context.Context, _host string) error {
+    // Note: change to your real domain
+    for _, allowedHost := range AllowHosts{
+        if _host == allowedHost {
+            return nil
+        }
+    }
+
+    return fmt.Errorf("acme/autocert: only %v host is allowed", AllowHosts)
 }
